@@ -39,5 +39,21 @@ export interface SpotifyPagingObject<T> {
   previous: string | null;
 }
 
+export interface SpotifyPlayHistoryItem {
+  track: SpotifyTrack;
+  played_at: string;
+  context: {
+    type: string;
+    external_urls: { spotify: string };
+  } | null;
+}
+
+export interface RecentlyPlayedResponse {
+  items: SpotifyPlayHistoryItem[];
+  next: string | null;
+  cursors: { after: string; before: string } | null;
+  limit: number;
+}
+
 export type TopTracksResponse = SpotifyPagingObject<SpotifyTrack>;
 export type TopArtistsResponse = SpotifyPagingObject<SpotifyArtist>;
