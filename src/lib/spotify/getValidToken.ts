@@ -1,19 +1,13 @@
-import { getToken, encode } from "next-auth/jwt";
+import { encode } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
-import { refreshSpotifyAccessToken } from "@/lib/auth";
+import { getTokenAndRefreshIfNeeded } from "./tokenCore";
 
 export async function getValidSpotifyToken(req: NextRequest) {
-  const token = await getToken({ req });
+  const { token, wasRefreshed } = await getTokenAndRefreshIfNeeded(req);
   if (!token) return { token: null, refreshedCookie: null };
 
-  const isExpired = Date.now() >= (token.expiresAt as number) * 1000;
-  if (!isExpired) return { token, refreshedCookie: null };
+  if (!wasRefreshed) return { token, refreshedCookie: null };
 
-  const refreshed = await refreshSpotifyAccessToken(token);
-  const encoded = await encode({
-    token: refreshed,
-    secret: process.env.NEXTAUTH_SECRET!,
-  });
-
-  return { token: refreshed, refreshedCookie: encoded };
+  const refreshedCookie = await encode({ token, secret: process.env.NEXTAUTH_SECRET! });
+  return { token, refreshedCookie };
 }
