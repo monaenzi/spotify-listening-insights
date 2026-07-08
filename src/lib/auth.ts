@@ -8,7 +8,7 @@ const SPOTIFY_SCOPES = [
   "user-read-private",
 ].join(" ");
 
-async function refreshSpotifyAccessToken(token: any) {
+export async function refreshSpotifyAccessToken(token: any) {
   try {
     const basicAuth = Buffer.from(
       `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
