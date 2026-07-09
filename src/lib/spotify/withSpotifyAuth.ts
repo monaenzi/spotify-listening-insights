@@ -3,7 +3,7 @@ import type { JWT } from "next-auth/jwt";
 import { getValidSpotifyToken } from "./getValidToken";
 import { SpotifyApiError } from "./client";
 
-type Handler = (token: JWT) => Promise<unknown>;
+type Handler = (token: JWT, req: NextRequest) => Promise<unknown>;
 
 export function withSpotifyAuth(handler: Handler) {
   return async function (req: NextRequest) {
@@ -20,7 +20,7 @@ export function withSpotifyAuth(handler: Handler) {
     }
 
     try {
-      const data = await handler(token);
+      const data = await handler(token, req);
       const response = NextResponse.json(data);
 
       if (refreshedCookie) {
