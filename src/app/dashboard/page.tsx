@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { Reveal } from "@/components/Reveal";
 import { HorizontalScroller } from "@/components/HorizontalScroller";
 import { TrackCard } from "@/components/TrackCard";
+import { ArtistCard } from "@/components/ArtistCard";
 
 export default async function DashboardPage() {
   const token = await getServerSpotifyToken();
@@ -56,26 +57,45 @@ export default async function DashboardPage() {
 
       <Reveal>
         <SectionHeading index="04" title="Taste Rotation" />
-        <div className="grid gap-8 font-sans">
-          <div>
-            <h3 className="text-accent uppercase text-xs tracking-widest mb-2">Ride or Dies</h3>
-            <ul className="text-foreground">
-              {rotation.shared.map((a) => <li key={a.id} className="py-1">{a.name}</li>)}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-accent uppercase text-xs tracking-widest mb-2">Current Obsessions</h3>
-            <ul className="text-foreground">
-              {rotation.currentObsessions.map((a) => <li key={a.id} className="py-1">{a.name}</li>)}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-accent uppercase text-xs tracking-widest mb-2">Old Favorites</h3>
-            <ul className="text-foreground">
-              {rotation.oldFavorites.map((a) => <li key={a.id} className="py-1">{a.name}</li>)}
-            </ul>
-          </div>
-        </div>
+
+        <h3 className="font-sans text-accent uppercase text-xs tracking-widest mb-3">
+          Ride or Dies
+        </h3>
+        {rotation.shared.length > 0 ? (
+          <HorizontalScroller>
+            {rotation.shared.map((a, i) => (
+              <ArtistCard key={a.id} artist={a} rank={i + 1} />
+            ))}
+          </HorizontalScroller>
+        ) : (
+          <p className="text-muted text-sm font-sans mb-8">No overlap yet — your taste is shifting fast.</p>
+        )}
+
+        <h3 className="font-sans text-accent uppercase text-xs tracking-widest mb-3 mt-10">
+          Current Obsessions
+        </h3>
+        {rotation.currentObsessions.length > 0 ? (
+          <HorizontalScroller>
+            {rotation.currentObsessions.map((a, i) => (
+              <ArtistCard key={a.id} artist={a} rank={i + 1} />
+            ))}
+          </HorizontalScroller>
+        ) : (
+          <p className="text-muted text-sm font-sans mb-8">Nothing new in rotation right now.</p>
+        )}
+
+        <h3 className="font-sans text-accent uppercase text-xs tracking-widest mb-3 mt-10">
+          Old Favorites
+        </h3>
+        {rotation.oldFavorites.length > 0 ? (
+          <HorizontalScroller>
+            {rotation.oldFavorites.map((a, i) => (
+              <ArtistCard key={a.id} artist={a} rank={i + 1} />
+            ))}
+          </HorizontalScroller>
+        ) : (
+          <p className="text-muted text-sm font-sans mb-8">You're still deep in your long-time favorites.</p>
+        )}
       </Reveal>
     </main>
   );
