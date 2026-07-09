@@ -1,8 +1,8 @@
 import { getServerSpotifyToken } from "@/lib/spotify/getServerToken";
 import { getTopTracks, getTopArtists, getRecentlyPlayed } from "@/lib/spotify/tracks";
 import { compareTimeRanges } from "@/lib/spotify/rotation";
-import { getMostRepeatedTracks } from "@/lib/spotify/repeats";
 import { AuthButton } from "@/components/AuthButton";
+import { FilterableStats } from "@/components/FilterableStats";
 
 export default async function DashboardPage() {
   const token = await getServerSpotifyToken();
@@ -25,27 +25,15 @@ export default async function DashboardPage() {
     ]);
 
   const rotation = compareTimeRanges(shortTermArtists.items, longTermArtists.items);
-  const repeatedTracks = getMostRepeatedTracks(recentlyPlayed.items);
 
   return (
     <main>
       <AuthButton />
 
-      <h2>Top Tracks</h2>
-      <ul>
-        {topTracks.items.map((t) => (
-          <li key={t.id}>{t.name} — {t.artists.map((a) => a.name).join(", ")}</li>
-        ))}
-      </ul>
-
-      <h2>Top Artists</h2>
-      <ul>
-        {topArtists.items.map((a) => (
-          <li key={a.id}>{a.name}</li>
-        ))}
-      </ul>
+      <FilterableStats initialTracks={topTracks} initialArtists={topArtists} />
 
       <h2>Recently Played</h2>
+      <p><small>Note: this may lag behind your actual listening by a few minutes — a known Spotify API limitation.</small></p>
       <ul>
         {recentlyPlayed.items.map((item, i) => (
           <li key={`${item.track.id}-${item.played_at}-${i}`}>
@@ -56,30 +44,13 @@ export default async function DashboardPage() {
         ))}
       </ul>
 
-      <h2>Most Repeated Tracks</h2>
-      {repeatedTracks.length === 0 ? (
-        <p>No repeats yet — check back after you've listened to more.</p>
-      ) : (
-        <ul>
-          {repeatedTracks.map((t) => (
-            <li key={t.trackId}>{t.name} — {t.artists} ({t.playCount}x)</li>
-          ))}
-        </ul>
-      )}
-
       <h2>Taste Rotation</h2>
       <h3>Your ride-or-dies (in both short & long term)</h3>
-      <ul>
-        {rotation.shared.map((a) => <li key={a.id}>{a.name}</li>)}
-      </ul>
+      <ul>{rotation.shared.map((a) => <li key={a.id}>{a.name}</li>)}</ul>
       <h3>Current obsessions (short term only)</h3>
-      <ul>
-        {rotation.currentObsessions.map((a) => <li key={a.id}>{a.name}</li>)}
-      </ul>
+      <ul>{rotation.currentObsessions.map((a) => <li key={a.id}>{a.name}</li>)}</ul>
       <h3>Old favorites (long term only, not in current rotation)</h3>
-      <ul>
-        {rotation.oldFavorites.map((a) => <li key={a.id}>{a.name}</li>)}
-      </ul>
+      <ul>{rotation.oldFavorites.map((a) => <li key={a.id}>{a.name}</li>)}</ul>
     </main>
   );
 }
