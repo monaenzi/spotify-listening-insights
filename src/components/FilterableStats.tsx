@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import type { TopTracksResponse, TopArtistsResponse } from "@/lib/spotify/types";
 import type { TimeRange } from "@/lib/spotify/tracks";
+import { TimeRangeToggle } from "./TimeRangeToggle";
+import { SectionHeading } from "./SectionHeading";
+import { Reveal } from "./Reveal";
+import { HorizontalScroller } from "./HorizontalScroller";
+import { TrackCard } from "./TrackCard";
+import { ArtistCard } from "./ArtistCard";
 
 interface Props {
   initialTracks: TopTracksResponse;
   initialArtists: TopArtistsResponse;
 }
-
-const RANGE_LABELS: Record<TimeRange, string> = {
-  short_term: "Last 4 weeks",
-  medium_term: "Last 6 months",
-  long_term: "All time",
-};
 
 export function FilterableStats({ initialTracks, initialArtists }: Props) {
   const [timeRange, setTimeRange] = useState<TimeRange>("medium_term");
@@ -48,37 +48,27 @@ export function FilterableStats({ initialTracks, initialArtists }: Props) {
 
   return (
     <div>
-      <div>
-        {(Object.keys(RANGE_LABELS) as TimeRange[]).map((range) => (
-          <button
-            key={range}
-            onClick={() => setTimeRange(range)}
-            disabled={range === timeRange}
-          >
-            {RANGE_LABELS[range]}
-          </button>
-        ))}
+      <TimeRangeToggle value={timeRange} onChange={setTimeRange} />
+
+      <div className={`transition-opacity duration-300 ${isLoading ? "opacity-40" : "opacity-100"}`}>
+        <Reveal>
+            <SectionHeading index="01" title="Top Tracks" />
+            <HorizontalScroller>
+                {tracks.items.map((t, i) => (
+                <TrackCard key={t.id} track={t} rank={i + 1} />
+                ))}
+            </HorizontalScroller>
+            </Reveal>
+
+            <Reveal delay={100}>
+            <SectionHeading index="02" title="Top Artists" />
+            <HorizontalScroller>
+                {artists.items.map((a, i) => (
+                <ArtistCard key={a.id} artist={a} rank={i + 1} />
+                ))}
+            </HorizontalScroller>
+            </Reveal>
       </div>
-
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <h2>Top Tracks</h2>
-          <ul>
-            {tracks.items.map((t) => (
-              <li key={t.id}>{t.name} — {t.artists.map((a) => a.name).join(", ")}</li>
-            ))}
-          </ul>
-
-          <h2>Top Artists</h2>
-          <ul>
-            {artists.items.map((a) => (
-              <li key={a.id}>{a.name}</li>
-            ))}
-          </ul>
-        </>
-      )}
     </div>
   );
 }

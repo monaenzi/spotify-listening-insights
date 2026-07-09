@@ -3,13 +3,20 @@ import { getTopTracks, getTopArtists, getRecentlyPlayed } from "@/lib/spotify/tr
 import { compareTimeRanges } from "@/lib/spotify/rotation";
 import { AuthButton } from "@/components/AuthButton";
 import { FilterableStats } from "@/components/FilterableStats";
+import { SectionHeading } from "@/components/SectionHeading";
+import { Reveal } from "@/components/Reveal";
+import { HorizontalScroller } from "@/components/HorizontalScroller";
+import { TrackCard } from "@/components/TrackCard";
 
 export default async function DashboardPage() {
   const token = await getServerSpotifyToken();
 
   if (!token) {
     return (
-      <main>
+      <main className="min-h-screen flex flex-col items-center justify-center gap-8 px-6">
+        <h1 className="font-display text-4xl md:text-6xl uppercase text-center tracking-wide">
+          Your Sound,<br />Charted
+        </h1>
         <AuthButton />
       </main>
     );
@@ -27,30 +34,49 @@ export default async function DashboardPage() {
   const rotation = compareTimeRanges(shortTermArtists.items, longTermArtists.items);
 
   return (
-    <main>
-      <AuthButton />
+    <main className="max-w-3xl mx-auto px-6 py-16">
+      <div className="flex items-center justify-between mb-16">
+        <h1 className="font-display text-2xl uppercase tracking-wide">Listening Insights</h1>
+        <AuthButton />
+      </div>
 
       <FilterableStats initialTracks={topTracks} initialArtists={topArtists} />
 
-      <h2>Recently Played</h2>
-      <p><small>Note: this may lag behind your actual listening by a few minutes — a known Spotify API limitation.</small></p>
-      <ul>
-        {recentlyPlayed.items.map((item, i) => (
-          <li key={`${item.track.id}-${item.played_at}-${i}`}>
-            {item.track.name} — {item.track.artists.map((a) => a.name).join(", ")}
-            {" "}
-            <small>({new Date(item.played_at).toLocaleString()})</small>
-          </li>
-        ))}
-      </ul>
+      <Reveal>
+        <SectionHeading index="03" title="Recently Played" />
+        <p className="text-muted text-xs font-sans mb-4">
+          May lag behind your actual listening by a few minutes — a known Spotify API limitation.
+        </p>
+        <HorizontalScroller>
+          {recentlyPlayed.items.map((item, i) => (
+            <TrackCard key={`${item.track.id}-${item.played_at}-${i}`} track={item.track} rank={i + 1} />
+          ))}
+        </HorizontalScroller>
+      </Reveal>
 
-      <h2>Taste Rotation</h2>
-      <h3>Your ride-or-dies (in both short & long term)</h3>
-      <ul>{rotation.shared.map((a) => <li key={a.id}>{a.name}</li>)}</ul>
-      <h3>Current obsessions (short term only)</h3>
-      <ul>{rotation.currentObsessions.map((a) => <li key={a.id}>{a.name}</li>)}</ul>
-      <h3>Old favorites (long term only, not in current rotation)</h3>
-      <ul>{rotation.oldFavorites.map((a) => <li key={a.id}>{a.name}</li>)}</ul>
+      <Reveal>
+        <SectionHeading index="04" title="Taste Rotation" />
+        <div className="grid gap-8 font-sans">
+          <div>
+            <h3 className="text-accent uppercase text-xs tracking-widest mb-2">Ride or Dies</h3>
+            <ul className="text-foreground">
+              {rotation.shared.map((a) => <li key={a.id} className="py-1">{a.name}</li>)}
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-accent uppercase text-xs tracking-widest mb-2">Current Obsessions</h3>
+            <ul className="text-foreground">
+              {rotation.currentObsessions.map((a) => <li key={a.id} className="py-1">{a.name}</li>)}
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-accent uppercase text-xs tracking-widest mb-2">Old Favorites</h3>
+            <ul className="text-foreground">
+              {rotation.oldFavorites.map((a) => <li key={a.id} className="py-1">{a.name}</li>)}
+            </ul>
+          </div>
+        </div>
+      </Reveal>
     </main>
   );
 }
