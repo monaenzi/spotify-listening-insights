@@ -31,3 +31,19 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes pulse-bar {
+  0%, 100% {
+    transform: scaleY(0.3);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.animate-pulse-bar {
+  transform-origin: bottom;
+  animation: pulse-bar ease-in-out infinite;
+}

@@ -8,17 +8,35 @@ import { Reveal } from "@/components/Reveal";
 import { HorizontalScroller } from "@/components/HorizontalScroller";
 import { TrackCard } from "@/components/TrackCard";
 import { ArtistCard } from "@/components/ArtistCard";
+import { EqualizerBars } from "@/components/EqualizerBars";
 
 export default async function DashboardPage() {
   const token = await getServerSpotifyToken();
 
   if (!token) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center gap-8 px-6">
-        <h1 className="font-display text-4xl md:text-6xl uppercase text-center tracking-wide">
+      <main className="min-h-screen flex flex-col items-center justify-center gap-10 px-6 text-center">
+        <span className="font-sans text-accent uppercase text-xs tracking-[0.3em]">
+          Personal Listening Archive
+        </span>
+
+        <EqualizerBars />
+
+        <h1 className="font-display text-4xl md:text-6xl uppercase tracking-wide leading-tight max-w-2xl">
           Your Sound,<br />Charted
         </h1>
+
+        <p className="font-sans text-muted max-w-md text-sm leading-relaxed">
+          Top tracks, top artists, and how your rotation shifts over time -
+          pulled straight from your Spotify listening history.
+        </p>
+
         <AuthButton />
+
+        <p className="font-sans text-muted text-xs max-w-xs">
+          Read-only. We only look at your top tracks, top artists, and recent
+          plays. Nothing is ever written to your account.
+        </p>
       </main>
     );
   }
